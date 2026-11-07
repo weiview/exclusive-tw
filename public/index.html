@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>獨家片單 — 台灣 Netflix vs HBO Max</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E0F13; --surface: #171920; --surface2: #1E2029; --line: #2A2D38; --line2: #3A3D48;
+    --text: #F2F2F4; --text2: #C9CBD3; --muted: #A0A3AE; --muted2: #8B8E99;
+    --nf: #B81D24; --nf-bar: #E5484D; --mx: #1F3FE0; --mx-bar: #6E8BFF;
+    --nf-poster: #24131A; --mx-poster: #121A36;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', system-ui, sans-serif; }
+  button, input, select { font-family: inherit; }
+  a { color: #9DB2FF; } a:hover { color: #C7D3FF; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 32px 32px 48px; display: flex; flex-direction: column; gap: 28px; }
+
+  header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo { width: 48px; height: 48px; border-radius: 12px; background: var(--text); color: var(--bg); display: grid; place-items: center; font-size: 24px; font-weight: 900; }
+  h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: .02em; }
+  .sub { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+  .hright { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+  .search { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 0 14px; height: 44px; min-width: 280px; }
+  .search:focus-within { border-color: var(--line2); }
+  .search input { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: var(--text); font-size: 15px; }
+  .synced { font-size: 13px; color: var(--muted); }
+
+  .platforms { display: flex; flex-wrap: wrap; gap: 12px; }
+  .pbtn { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 20px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700; color: var(--text); background: var(--surface); border: 1px solid var(--line); }
+  .pbtn .dot { width: 10px; height: 10px; border-radius: 3px; }
+  .pbtn .cnt { font-size: 13px; font-weight: 500; padding: 2px 8px; border-radius: 999px; background: #262934; }
+  .pbtn[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .pbtn[aria-pressed="true"] .cnt { background: #D9DAE0; }
+
+  .layout { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+  aside { flex: 1 1 260px; max-width: 320px; display: flex; flex-direction: column; gap: 24px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .card h2 { margin: 0; font-size: 15px; font-weight: 700; color: var(--text2); }
+  .card .hint { margin: 0; font-size: 12px; color: var(--muted); }
+  .genres { display: flex; flex-direction: column; gap: 4px; max-height: 520px; overflow-y: auto; }
+  .gbtn { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 12px; border-radius: 8px; border: 0; cursor: pointer; font-size: 15px; text-align: left; color: var(--text2); background: transparent; flex: none; }
+  .gbtn .cnt { font-size: 13px; color: var(--muted2); }
+  .gbtn:hover { background: var(--surface2); }
+  .gbtn[aria-pressed="true"] { background: var(--line); color: #fff; }
+  .gbtn[aria-pressed="true"] .cnt { color: #fff; }
+  .gbtn:disabled { opacity: .45; cursor: default; }
+  .kinds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .kbtn { min-height: 44px; border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--text2); background: transparent; border: 1px solid var(--line); }
+  .kbtn[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--text2); }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .dist { display: flex; flex-direction: column; gap: 10px; }
+  .drow { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: center; font-size: 13px; color: var(--text2); }
+  .bars { display: flex; flex-direction: column; gap: 3px; }
+  .bar { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .bar div { height: 8px; border-radius: 4px; min-width: 2px; }
+
+  main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .toolbar h2 { margin: 0; font-size: 22px; font-weight: 700; }
+  .total { font-size: 14px; color: var(--muted); margin-left: 10px; }
+  .sort { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text2); }
+  .sort select { height: 44px; background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 22px; }
+  .item { display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit; }
+  .poster { position: relative; aspect-ratio: 2 / 3; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px; }
+  .poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .poster .ph { position: relative; font-size: 20px; font-weight: 900; line-height: 1.3; }
+  .poster .ph small { display: block; font-size: 12px; font-weight: 400; color: var(--text2); margin-top: 4px; }
+  .badge { position: absolute; top: 12px; left: 12px; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 6px; z-index: 1; }
+  .kind { position: absolute; top: 12px; right: 12px; font-size: 12px; color: var(--text); background: rgba(14,15,19,.82); border: 1px solid var(--line2); padding: 3px 8px; border-radius: 6px; z-index: 1; }
+  .item:hover .poster { border-color: var(--line2); }
+  .title { font-size: 16px; font-weight: 700; line-height: 1.35; }
+  .orig { font-size: 12px; color: var(--muted); margin-top: -6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tags span { font-size: 12px; color: var(--text2); background: var(--surface2); border: 1px solid var(--line); padding: 3px 8px; border-radius: 999px; }
+  .meta { font-size: 13px; color: var(--muted); }
+  .more { align-self: center; min-height: 48px; padding: 0 28px; border-radius: 10px; border: 1px solid var(--line2); background: var(--surface); color: var(--text); font-size: 15px; cursor: pointer; }
+  .empty, .status { border: 1px dashed var(--line2); border-radius: 14px; padding: 56px 24px; text-align: center; color: var(--muted); }
+  .empty strong { display: block; color: var(--text); font-size: 17px; margin-bottom: 8px; }
+
+  footer { border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); }
+
+  @media (max-width: 720px) {
+    .wrap { padding: 20px 16px 32px; gap: 18px; }
+    .search { min-width: 0; flex: 1 1 100%; }
+    .hright { flex: 1 1 100%; }
+    .platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+    .pbtn { flex-direction: column; justify-content: center; gap: 2px; padding: 6px 4px; font-size: 13px; min-height: 52px; }
+    .pbtn .dot { display: none; }
+    .pbtn .cnt { background: transparent !important; padding: 0; font-size: 11px; }
+    aside { max-width: none; flex-basis: 100%; gap: 12px; }
+    aside .card { padding: 0; background: transparent; border: 0; }
+    aside .card h2, aside .card .hint, .distcard { display: none; }
+    .genres { flex-direction: row; overflow-x: auto; max-height: none; padding-bottom: 4px; }
+    .gbtn { border: 1px solid var(--line); border-radius: 999px; min-height: 38px; gap: 6px; white-space: nowrap; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .poster .ph { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">獨</div>
+      <div>
+        <h1>獨家片單</h1>
+        <p class="sub">台灣地區 · 只在 Netflix 或只在 HBO Max 上架的節目</p>
+      </div>
+    </div>
+    <div class="hright">
+      <label class="search">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A0A3AE" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="sr">搜尋片名</span>
+        <input id="q" type="search" placeholder="搜尋中文或原文片名" autocomplete="off">
+      </label>
+      <span class="synced" id="synced">載入中…</span>
+    </div>
+  </header>
+
+  <nav class="platforms" id="platforms" aria-label="平台"></nav>
+
+  <div class="layout">
+    <aside>
+      <section class="card">
+        <h2>類型</h2>
+        <div class="genres" id="genres"></div>
+      </section>
+      <section class="card">
+        <h2>形式</h2>
+        <div class="kinds" id="kinds"></div>
+      </section>
+      <section class="card distcard">
+        <div>
+          <h2>類型分布</h2>
+          <p class="hint">兩平台獨家節目各類型數量</p>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--nf-bar)"></i>Netflix</span>
+          <span><i style="background:var(--mx-bar)"></i>HBO Max</span>
+        </div>
+        <div class="dist" id="dist"></div>
+      </section>
+    </aside>
+
+    <main>
+      <div class="toolbar">
+        <div><h2 id="heading" style="display:inline">全部獨家</h2><span class="total" id="total"></span></div>
+        <label class="sort">排序
+          <select id="sort">
+            <option value="popularity">熱門程度</option>
+            <option value="year">最新上映</option>
+            <option value="rating">評分</option>
+            <option value="title">片名</option>
+          </select>
+        </label>
+      </div>
+      <div id="results"><div class="status">載入資料中…</div></div>
+      <button type="button" class="more" id="more" hidden>載入更多</button>
+    </main>
+  </div>
+
+  <footer>
+    <span>「獨家」＝ 該片在台灣只於其中一個平台以訂閱方式可觀看（不含租借／購買）</span>
+    <span>資料來源：<a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>／JustWatch。This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var PAGE = 60;
+  var IMG = 'https://image.tmdb.org/t/p/w342';
+  var PLAT = {
+    all: { label: '全部獨家', dot: '#F2F2F4' },
+    nf: { label: '只在 Netflix', dot: '#E5484D', badge: 'Netflix', color: 'var(--nf)', poster: 'var(--nf-poster)' },
+    mx: { label: '只在 HBO Max', dot: '#6E8BFF', badge: 'HBO Max', color: 'var(--mx)', poster: 'var(--mx-poster)' }
+  };
+  var KINDS = ['全部', '影集', '電影'];
+  var ALL = [];
+  var GENRES = [];
+  var state = readHash();
+  var shown = PAGE;
+
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  function readHash() {
+    var p = new URLSearchParams(location.hash.slice(1));
+    return {
+      platform: PLAT[p.get('p')] ? p.get('p') : 'all',
+      genre: p.get('g') || '全部',
+      kind: KINDS.indexOf(p.get('k')) >= 0 ? p.get('k') : '全部',
+      q: p.get('q') || '',
+      sort: p.get('s') || 'popularity'
+    };
+  }
+  function writeHash() {
+    var p = new URLSearchParams();
+    if (state.platform !== 'all') p.set('p', state.platform);
+    if (state.genre !== '全部') p.set('g', state.genre);
+    if (state.kind !== '全部') p.set('k', state.kind);
+    if (state.q) p.set('q', state.q);
+    if (state.sort !== 'popularity') p.set('s', state.sort);
+    history.replaceState(null, '', p.toString() ? '#' + p.toString() : location.pathname + location.search);
+  }
+  function set(patch) {
+    Object.assign(state, patch);
+    shown = PAGE;
+    writeHash();
+    render();
+  }
+
+  function render() {
+    var q = state.q.trim().toLowerCase();
+    var byKind = ALL.filter(function (t) { return state.kind === '全部' || t.kind === state.kind; });
+    var bySearch = byKind.filter(function (t) {
+      return !q || (t.zh || '').toLowerCase().indexOf(q) >= 0 || (t.original || '').toLowerCase().indexOf(q) >= 0;
+    });
+    var byPlat = bySearch.filter(function (t) { return state.platform === 'all' || t.p === state.platform; });
+    var list = byPlat.filter(function (t) { return state.genre === '全部' || t.g.indexOf(state.genre) >= 0; });
+
+    var sorters = {
+      popularity: function (a, b) { return b.popularity - a.popularity; },
+      year: function (a, b) { return (b.year || 0) - (a.year || 0) || b.popularity - a.popularity; },
+      rating: function (a, b) { return b.rating - a.rating; },
+      title: function (a, b) { return (a.zh || '').localeCompare(b.zh || '', 'zh-Hant-TW'); }
+    };
+    list = list.slice().sort(sorters[state.sort] || sorters.popularity);
+
+    $('platforms').innerHTML = ['all', 'nf', 'mx'].map(function (key) {
+      var n = bySearch.filter(function (t) { return key === 'all' || t.p === key; }).length;
+      return '<button type="button" class="pbtn" data-p="' + key + '" aria-pressed="' + (state.platform === key) + '">' +
+        '<span class="dot" style="background:' + PLAT[key].dot + '" aria-hidden="true"></span>' +
+        '<span>' + PLAT[key].label + '</span><span class="cnt">' + n.toLocaleString() + '</span></button>';
+    }).join('');
+
+    $('genres').innerHTML = ['全部'].concat(GENRES).map(function (name) {
+      var n = name === '全部' ? byPlat.length : byPlat.filter(function (t) { return t.g.indexOf(name) >= 0; }).length;
+      var on = state.genre === name;
+      return '<button type="button" class="gbtn" data-g="' + esc(name) + '" aria-pressed="' + on + '"' + (n === 0 && !on ? ' disabled' : '') + '>' +
+        '<span>' + esc(name) + '</span><span class="cnt">' + n.toLocaleString() + '</span></button>';
+    }).join('');
+
+    $('kinds').innerHTML = KINDS.map(function (k) {
+      return '<button type="button" class="kbtn" data-k="' + k + '" aria-pressed="' + (state.kind === k) + '">' + k + '</button>';
+    }).join('');
+
+    var rows = GENRES.map(function (name) {
+      var nf = 0, mx = 0;
+      byKind.forEach(function (t) { if (t.g.indexOf(name) >= 0) { if (t.p === 'nf') nf++; else mx++; } });
+      return { name: name, nf: nf, mx: mx };
+    }).filter(function (r) { return r.nf + r.mx > 0; });
+    var max = Math.max.apply(null, rows.map(function (r) { return Math.max(r.nf, r.mx); }).concat([1]));
+    $('dist').innerHTML = rows.map(function (r) {
+      return '<div class="drow"><span>' + esc(r.name) + '</span><div class="bars">' +
+        '<div class="bar"><div style="background:var(--nf-bar);width:' + (r.nf / max * 75) + '%"></div>' + r.nf + '</div>' +
+        '<div class="bar"><div style="background:var(--mx-bar);width:' + (r.mx / max * 75) + '%"></div>' + r.mx + '</div>' +
+        '</div></div>';
+    }).join('');
+
+    $('heading').textContent = PLAT[state.platform].label + (state.genre === '全部' ? '' : ' · ' + state.genre);
+    $('total').textContent = '共 ' + list.length.toLocaleString() + ' 部';
+    $('sort').value = state.sort;
+    if ($('q').value !== state.q) $('q').value = state.q;
+
+    if (!list.length) {
+      $('results').innerHTML = '<div class="empty"><strong>沒有符合條件的獨家節目</strong>試試換個類型、形式或關鍵字</div>';
+      $('more').hidden = true;
+      return;
+    }
+    $('results').innerHTML = '<div class="grid">' + list.slice(0, shown).map(card).join('') + '</div>';
+    $('more').hidden = list.length <= shown;
+    $('more').textContent = '載入更多（還有 ' + (list.length - shown).toLocaleString() + ' 部）';
+  }
+
+  function card(t) {
+    var P = PLAT[t.p];
+    var type = t.kind === '影集' ? 'tv' : 'movie';
+    var img = t.poster ? '<img loading="lazy" src="' + IMG + t.poster + '" alt="">' : '';
+    var showOrig = t.original && t.original !== t.zh;
+    return '<a class="item" href="https://www.themoviedb.org/' + type + '/' + t.tmdbId + '/watch?locale=TW" target="_blank" rel="noopener">' +
+      '<div class="poster" style="background:' + P.poster + '">' + img +
+      '<span class="badge" style="background:' + P.color + '">' + P.badge + '</span>' +
+      '<span class="kind">' + t.kind + '</span>' +
+      (img ? '' : '<span class="ph">' + esc(t.zh) + (showOrig ? '<small>' + esc(t.original) + '</small>' : '') + '</span>') +
+      '</div>' +
+      '<div class="title">' + esc(t.zh) + '</div>' +
+      (showOrig ? '<div class="orig">' + esc(t.original) + '</div>' : '') +
+      '<div class="tags">' + t.g.slice(0, 3).map(function (g) { return '<span>' + esc(g) + '</span>'; }).join('') + '</div>' +
+      '<div class="meta">' + (t.year ? t.year + ' 年' : '年份未知') + (t.rating ? ' · ★ ' + t.rating.toFixed(1) : '') + '</div>' +
+      '</a>';
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.p) set({ platform: b.dataset.p });
+    else if (b.dataset.g) set({ genre: b.dataset.g });
+    else if (b.dataset.k) set({ kind: b.dataset.k });
+    else if (b.id === 'more') { shown += PAGE; render(); }
+  });
+  var timer;
+  $('q').addEventListener('input', function (e) {
+    clearTimeout(timer);
+    timer = setTimeout(function () { set({ q: e.target.value }); }, 150);
+  });
+  $('sort').addEventListener('change', function (e) { set({ sort: e.target.value }); });
+
+  fetch('data.json', { cache: 'no-cache' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (data) {
+      ALL = data.items;
+      var counts = {};
+      ALL.forEach(function (t) { t.g.forEach(function (g) { counts[g] = (counts[g] || 0) + 1; }); });
+      GENRES = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; });
+      var d = new Date(data.updatedAt);
+      $('synced').textContent = '最後同步：' + d.toLocaleString('zh-TW', { dateStyle: 'medium', timeStyle: 'short' });
+      render();
+    })
+    .catch(function () {
+      $('synced').textContent = '';
+      $('results').innerHTML = '<div class="status">找不到 data.json。請先執行 <code>npm run fetch</code> 產生資料。</div>';
+    });
+})();
+</script>
+</body>
+</html>
