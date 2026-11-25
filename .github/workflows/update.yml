@@ -20,17 +20,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: 抓取 TMDB 資料
         run: node scripts/fetch-data.mjs
         env:
           TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: public
+          retention-days: 1
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -39,4 +41,45 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
+
+  # 只保留這一次執行：刪掉所有舊的執行紀錄（連同其 log 與 artifact），
+  # 以及這次已部署完的 artifact，避免佔用 Actions 儲存空間。
+  cleanup:
+    needs: [build, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: 清除舊執行紀錄與 artifact
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const current = context.runId;
+
+            const runs = await github.paginate(
+              github.rest.actions.listWorkflowRunsForRepo,
+              { owner, repo, per_page: 100 },
+            );
+            let deleted = 0;
+            for (const run of runs) {
+              if (run.id === current || run.status !== 'completed') continue;
+              try {
+                await github.rest.actions.deleteWorkflowRun({ owner, repo, run_id: run.id });
+                deleted++;
+              } catch (e) {
+                core.warning(`刪除執行 #${run.run_number} 失敗：${e.message}`);
+              }
+            }
+            core.info(`已刪除 ${deleted} 筆舊執行紀錄`);
+
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              { owner, repo, run_id: current, per_page: 100 },
+            );
+            for (const a of artifacts) {
+              await github.rest.actions.deleteArtifact({ owner, repo, artifact_id: a.id });
+              core.info(`已刪除本次 artifact：${a.name}`);
+            }

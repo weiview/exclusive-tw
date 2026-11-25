@@ -25,6 +25,8 @@ npm start                    # 開啟 http://localhost:3000
 3. Repo → Settings → Pages → Source 選 **GitHub Actions**。
 4. 到 Actions 手動執行一次「更新片單並部署」，之後每天台灣時間 03:17 自動更新。
 
+每次執行完會自動刪掉所有舊的執行紀錄與 artifact，Actions 頁面只會留下最新一次，避免佔用儲存空間。
+
 ## 已知限制
 
 - 上架資料以 JustWatch 為準，與平台實際狀況可能有一兩天落差。
